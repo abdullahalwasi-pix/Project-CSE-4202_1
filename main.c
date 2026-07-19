@@ -18,7 +18,8 @@ void showMenu()
     printf("7. Delete Course Result\n");
     printf("8. View Marksheet\n");
     printf("9. Required GPA Calculator\n");
-    printf("10. Exit\n");
+    printf("10. Expected CGPA Calculator\n");
+    printf("11. Exit\n");
     printf("Enter Choice: ");
 }
 
@@ -164,11 +165,11 @@ void deleteCourse(
     int kept_results = 0;
 
     /*
-        যে course delete হচ্ছে, তার result বাদ যাবে।
+        Deleted course-এর result বাদ যাবে।
 
         Deleted course-এর পরে থাকা course-গুলো
-        array-তে এক ঘর সামনে যাবে। তাই result-এর
-        course pointer-ও এক ঘর পিছিয়ে দেওয়া হচ্ছে।
+        এক ঘর সামনে আসবে। তাই result-এর course
+        pointer-ও এক ঘর পিছিয়ে দেওয়া হচ্ছে।
     */
     for (int i = 0; i < *n_results; i++)
     {
@@ -452,7 +453,12 @@ void viewMarksheet(
          semester <= 8;
          semester++)
     {
-        CourseResult semester_results[MAX_ITEMS];
+        /*
+            Extra one position রাখা হয়েছে,
+            কারণ filter function শেষে null
+            sentinel রাখতে পারে।
+        */
+        CourseResult semester_results[MAX_ITEMS + 1];
 
         filterCourseResultsBySemester(
             results,
@@ -464,7 +470,7 @@ void viewMarksheet(
         int n_semester_results =
             countCourseResultsBeforeNull(
                 semester_results,
-                MAX_ITEMS
+                MAX_ITEMS + 1
             );
 
         if (n_semester_results > 0)
@@ -496,7 +502,9 @@ void showRequiredGPACalculator()
     double target_cgpa;
     double remaining_credits;
 
-    printf("\n========== REQUIRED GPA CALCULATOR ==========\n");
+    printf(
+        "\n========== REQUIRED GPA CALCULATOR ==========\n"
+    );
 
     printf("Current CGPA: ");
     scanf("%lf", &current_cgpa);
@@ -547,6 +555,68 @@ void showRequiredGPACalculator()
     }
 }
 
+void showExpectedCGPACalculator()
+{
+    double current_cgpa;
+    double completed_credits;
+    double expected_future_gpa;
+    double future_credits;
+
+    printf(
+        "\n========== EXPECTED CGPA CALCULATOR ==========\n"
+    );
+
+    printf("Current CGPA: ");
+    scanf("%lf", &current_cgpa);
+
+    printf("Completed Credits: ");
+    scanf("%lf", &completed_credits);
+
+    printf("Expected Future GPA: ");
+    scanf("%lf", &expected_future_gpa);
+
+    printf("Future Credits: ");
+    scanf("%lf", &future_credits);
+
+    if (completed_credits < 0.0 ||
+        future_credits < 0.0)
+    {
+        printf("Credits cannot be negative.\n");
+        return;
+    }
+
+    if (completed_credits + future_credits <= 0.0)
+    {
+        printf(
+            "Total credits must be greater than zero.\n"
+        );
+
+        return;
+    }
+
+    if (current_cgpa < 0.0 ||
+        current_cgpa > 4.0 ||
+        expected_future_gpa < 0.0 ||
+        expected_future_gpa > 4.0)
+    {
+        printf("GPA must be between 0.00 and 4.00.\n");
+        return;
+    }
+
+    double expected_cgpa =
+        calculateExpectedCGPA(
+            current_cgpa,
+            completed_credits,
+            expected_future_gpa,
+            future_credits
+        );
+
+    printf(
+        "Expected CGPA: %.2f\n",
+        expected_cgpa
+    );
+}
+
 int main()
 {
     Course courses[MAX_ITEMS];
@@ -556,7 +626,7 @@ int main()
     int n_results = 0;
     int choice = 0;
 
-    while (choice != 10)
+    while (choice != 11)
     {
         showMenu();
 
@@ -631,6 +701,10 @@ int main()
             showRequiredGPACalculator();
         }
         else if (choice == 10)
+        {
+            showExpectedCGPACalculator();
+        }
+        else if (choice == 11)
         {
             printf("Program closed.\n");
         }
