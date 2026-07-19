@@ -25,3 +25,16 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Course result module tests failed."
     exit 1
 }
+gcc -I modules tests/test_gpa.c modules/course.c modules/courseResult.c modules/gpa.c -o test_gpa.exe
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "GPA test compilation failed."
+    exit 1
+}
+
+.\test_gpa.exe
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "GPA module tests failed."
+    exit 1
+}
