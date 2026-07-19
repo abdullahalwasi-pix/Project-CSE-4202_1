@@ -9,17 +9,20 @@ int testCGPA()
         createCourse(
             "CSE 4107",
             "Structured Programming I",
-            3.0
+            3.0,
+            1
         ),
         createCourse(
             "CSE 4108",
             "Structured Programming I Lab",
-            1.5
+            1.5,
+            1
         ),
         createCourse(
             "CSE 4203",
             "Discrete Mathematics",
-            3.0
+            3.0,
+            2
         )
     };
 
@@ -39,7 +42,8 @@ int testGradePoint()
     Course course = createCourse(
         "CSE 4107",
         "Structured Programming I",
-        3.0
+        3.0,
+        1
     );
 
     CourseResult result =
@@ -53,7 +57,8 @@ int testLetterGrade()
     Course course = createCourse(
         "CSE 4108",
         "Structured Programming I Lab",
-        1.5
+        1.5,
+        1
     );
 
     CourseResult result =
@@ -69,7 +74,8 @@ int testIncompleteGradePoint()
     Course course = createCourse(
         "CSE 4203",
         "Discrete Mathematics",
-        3.0
+        3.0,
+        2
     );
 
     CourseResult result =
@@ -86,20 +92,16 @@ int main()
     int total = 0;
 
     total++;
-    if (testCGPA())
-        passed++;
+    if (testCGPA()) passed++;
 
     total++;
-    if (testGradePoint())
-        passed++;
+    if (testGradePoint()) passed++;
 
     total++;
-    if (testLetterGrade())
-        passed++;
+    if (testLetterGrade()) passed++;
 
     total++;
-    if (testIncompleteGradePoint())
-        passed++;
+    if (testIncompleteGradePoint()) passed++;
 
     printf("Passed %d/%d tests\n", passed, total);
 
