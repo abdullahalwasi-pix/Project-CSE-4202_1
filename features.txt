@@ -1,4 +1,3 @@
-003 - Add CGPA calculator [Dependency: 002]
 004 - Enable Incomplete Courses [Dependency: 003]
 005 - Show Individual Semester GPA [Dependency: 003]
 006 - Make Course List Dynamic [Dependency: 004, 005]
