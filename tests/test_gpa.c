@@ -119,6 +119,20 @@ int testRequiredGPA()
            required_gpa < 3.91;
 }
 
+int testExpectedCGPA()
+{
+    double expected_cgpa =
+        calculateExpectedCGPA(
+            3.50,
+            90.0,
+            4.00,
+            30.0
+        );
+
+    return expected_cgpa > 3.62 &&
+           expected_cgpa < 3.63;
+}
+
 int main()
 {
     printf("GPA module tests\n");
@@ -152,6 +166,12 @@ int main()
 
     total++;
     if (testRequiredGPA())
+    {
+        passed++;
+    }
+
+    total++;
+    if (testExpectedCGPA())
     {
         passed++;
     }
