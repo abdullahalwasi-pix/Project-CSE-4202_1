@@ -4,188 +4,715 @@
 #include "courseResult.h"
 #include "gpa.h"
 
-int testCGPA()
+#define MAX_ITEMS 1000
+
+void showMenu()
 {
-    Course courses[3] = {
-        createCourse(
-            "CSE 4107",
-            "Structured Programming I",
-            3.0,
-            1
-        ),
-        createCourse(
-            "CSE 4108",
-            "Structured Programming I Lab",
-            1.5,
-            1
-        ),
-        createCourse(
-            "CSE 4203",
-            "Discrete Mathematics",
-            3.0,
-            2
+    printf("\n========== CGPA CALCULATOR ==========\n");
+    printf("1. Add Course\n");
+    printf("2. Edit Course\n");
+    printf("3. Delete Course\n");
+    printf("4. View Courses\n");
+    printf("5. Add Course Result\n");
+    printf("6. Edit Course Result\n");
+    printf("7. Delete Course Result\n");
+    printf("8. View Marksheet\n");
+    printf("9. Required GPA Calculator\n");
+    printf("10. Expected CGPA Calculator\n");
+    printf("11. Exit\n");
+    printf("Enter Choice: ");
+}
+
+void addCourse(
+    Course courses[],
+    int *n_courses
+)
+{
+    char code[16];
+    char name[100];
+    double credit;
+    int semester;
+
+    if (*n_courses >= MAX_ITEMS)
+    {
+        printf("Course list is full.\n");
+        return;
+    }
+
+    printf("Course Code: ");
+    scanf("%15s", code);
+
+    printf("Course Name: ");
+    scanf(" %99[^\n]", name);
+
+    printf("Credit: ");
+    scanf("%lf", &credit);
+
+    printf("Semester: ");
+    scanf("%d", &semester);
+
+    courses[*n_courses] = createCourse(
+        code,
+        name,
+        credit,
+        semester
+    );
+
+    *n_courses = *n_courses + 1;
+
+    printf("Course added successfully.\n");
+}
+
+void viewCourses(
+    Course courses[],
+    int n_courses
+)
+{
+    if (n_courses == 0)
+    {
+        printf("No courses added yet.\n");
+        return;
+    }
+
+    printf("\n========== COURSE LIST ==========\n");
+
+    for (int i = 0; i < n_courses; i++)
+    {
+        printf("\n%d.\n", i + 1);
+        viewCourse(courses[i]);
+    }
+}
+
+void editCourse(
+    Course courses[],
+    int n_courses
+)
+{
+    int course_no;
+    char code[16];
+    char name[100];
+    double credit;
+    int semester;
+
+    if (n_courses == 0)
+    {
+        printf("No courses available to edit.\n");
+        return;
+    }
+
+    viewCourses(courses, n_courses);
+
+    printf("\nCourse Number: ");
+    scanf("%d", &course_no);
+
+    if (course_no < 1 || course_no > n_courses)
+    {
+        printf("Invalid course number.\n");
+        return;
+    }
+
+    printf("New Course Code: ");
+    scanf("%15s", code);
+
+    printf("New Course Name: ");
+    scanf(" %99[^\n]", name);
+
+    printf("New Credit: ");
+    scanf("%lf", &credit);
+
+    printf("New Semester: ");
+    scanf("%d", &semester);
+
+    courses[course_no - 1] = createCourse(
+        code,
+        name,
+        credit,
+        semester
+    );
+
+    printf("Course updated successfully.\n");
+}
+
+void deleteCourse(
+    Course courses[],
+    int *n_courses,
+    CourseResult results[],
+    int *n_results
+)
+{
+    int course_no;
+
+    if (*n_courses == 0)
+    {
+        printf("No courses available to delete.\n");
+        return;
+    }
+
+    viewCourses(courses, *n_courses);
+
+    printf("\nCourse Number: ");
+    scanf("%d", &course_no);
+
+    if (course_no < 1 || course_no > *n_courses)
+    {
+        printf("Invalid course number.\n");
+        return;
+    }
+
+    Course *deleted_course =
+        &courses[course_no - 1];
+
+    int kept_results = 0;
+
+    /*
+        Deleted course-এর result বাদ যাবে।
+
+        Deleted course-এর পরে থাকা course-গুলো
+        এক ঘর সামনে আসবে। তাই result-এর course
+        pointer-ও এক ঘর পিছিয়ে দেওয়া হচ্ছে।
+    */
+    for (int i = 0; i < *n_results; i++)
+    {
+        if (results[i].course == deleted_course)
+        {
+            continue;
+        }
+
+        if (results[i].course > deleted_course)
+        {
+            results[i].course--;
+        }
+
+        results[kept_results] = results[i];
+        kept_results++;
+    }
+
+    *n_results = kept_results;
+
+    for (int i = course_no - 1;
+         i < *n_courses - 1;
+         i++)
+    {
+        courses[i] = courses[i + 1];
+    }
+
+    *n_courses = *n_courses - 1;
+
+    printf("Course deleted successfully.\n");
+}
+
+void viewResultList(
+    CourseResult results[],
+    int n_results
+)
+{
+    if (n_results == 0)
+    {
+        printf("No course results available.\n");
+        return;
+    }
+
+    printf("\n========== COURSE RESULTS ==========\n");
+
+    for (int i = 0; i < n_results; i++)
+    {
+        printf("\n%d.\n", i + 1);
+
+        viewCourseResult(results[i]);
+
+        printf(
+            "Grade: %s\n",
+            getLetterGrade(results[i])
+        );
+    }
+}
+
+void addCourseResult(
+    Course courses[],
+    int n_courses,
+    CourseResult results[],
+    int *n_results
+)
+{
+    int course_no;
+    int completed;
+    double marks;
+
+    if (n_courses == 0)
+    {
+        printf("Add a course first.\n");
+        return;
+    }
+
+    if (*n_results >= MAX_ITEMS)
+    {
+        printf("Course result list is full.\n");
+        return;
+    }
+
+    viewCourses(courses, n_courses);
+
+    printf("\nCourse Number: ");
+    scanf("%d", &course_no);
+
+    if (course_no < 1 || course_no > n_courses)
+    {
+        printf("Invalid course number.\n");
+        return;
+    }
+
+    printf(
+        "\n%s: %s Completed?\n",
+        courses[course_no - 1].code,
+        courses[course_no - 1].name
+    );
+
+    printf("1. YES\n");
+    printf("2. NO\n");
+    printf("Enter Choice: ");
+    scanf("%d", &completed);
+
+    if (completed == 1)
+    {
+        printf(
+            "Marks for %s: ",
+            courses[course_no - 1].name
+        );
+
+        scanf("%lf", &marks);
+
+        results[*n_results] =
+            createCompletedCourseResult(
+                &courses[course_no - 1],
+                marks
+            );
+    }
+    else if (completed == 2)
+    {
+        results[*n_results] =
+            createIncompleteCourseResult(
+                &courses[course_no - 1]
+            );
+    }
+    else
+    {
+        printf("Invalid choice.\n");
+        return;
+    }
+
+    *n_results = *n_results + 1;
+
+    printf("Course result added successfully.\n");
+}
+
+void editCourseResult(
+    CourseResult results[],
+    int n_results
+)
+{
+    int result_no;
+    int completed;
+    double marks;
+
+    if (n_results == 0)
+    {
+        printf(
+            "No course results available to edit.\n"
+        );
+
+        return;
+    }
+
+    viewResultList(results, n_results);
+
+    printf("\nCourse Result Number: ");
+    scanf("%d", &result_no);
+
+    if (result_no < 1 || result_no > n_results)
+    {
+        printf("Invalid course result number.\n");
+        return;
+    }
+
+    Course *course =
+        results[result_no - 1].course;
+
+    printf(
+        "\n%s: %s Completed?\n",
+        course->code,
+        course->name
+    );
+
+    printf("1. YES\n");
+    printf("2. NO\n");
+    printf("Enter Choice: ");
+    scanf("%d", &completed);
+
+    if (completed == 1)
+    {
+        printf(
+            "Marks for %s: ",
+            course->name
+        );
+
+        scanf("%lf", &marks);
+
+        results[result_no - 1] =
+            createCompletedCourseResult(
+                course,
+                marks
+            );
+    }
+    else if (completed == 2)
+    {
+        results[result_no - 1] =
+            createIncompleteCourseResult(course);
+    }
+    else
+    {
+        printf("Invalid choice.\n");
+        return;
+    }
+
+    printf("Course result updated successfully.\n");
+}
+
+void deleteCourseResult(
+    CourseResult results[],
+    int *n_results
+)
+{
+    int result_no;
+
+    if (*n_results == 0)
+    {
+        printf(
+            "No course results available to delete.\n"
+        );
+
+        return;
+    }
+
+    viewResultList(results, *n_results);
+
+    printf("\nCourse Result Number: ");
+    scanf("%d", &result_no);
+
+    if (result_no < 1 ||
+        result_no > *n_results)
+    {
+        printf("Invalid course result number.\n");
+        return;
+    }
+
+    for (int i = result_no - 1;
+         i < *n_results - 1;
+         i++)
+    {
+        results[i] = results[i + 1];
+    }
+
+    *n_results = *n_results - 1;
+
+    printf("Course result deleted successfully.\n");
+}
+
+void viewMarksheet(
+    CourseResult results[],
+    int n_results
+)
+{
+    if (n_results == 0)
+    {
+        printf("No course results available.\n");
+        return;
+    }
+
+    sortCourseResultsBySemester(
+        results,
+        n_results
+    );
+
+    printf("\n========== MARKSHEET ==========\n");
+
+    for (int i = 0; i < n_results; i++)
+    {
+        printf("\n%d.\n", i + 1);
+
+        viewCourseResult(results[i]);
+
+        printf(
+            "Grade: %s\n",
+            getLetterGrade(results[i])
+        );
+    }
+
+    printf("\n========== SEMESTER GPA ==========\n");
+
+    for (int semester = 1;
+         semester <= 8;
+         semester++)
+    {
+        /*
+            Extra one position রাখা হয়েছে,
+            কারণ filter function শেষে null
+            sentinel রাখতে পারে।
+        */
+        CourseResult semester_results[MAX_ITEMS + 1];
+
+        filterCourseResultsBySemester(
+            results,
+            n_results,
+            semester,
+            semester_results
+        );
+
+        int n_semester_results =
+            countCourseResultsBeforeNull(
+                semester_results,
+                MAX_ITEMS + 1
+            );
+
+        if (n_semester_results > 0)
+        {
+            printf(
+                "Semester %d GPA: %.2f\n",
+                semester,
+                calculateGPA(
+                    semester_results,
+                    n_semester_results
+                )
+            );
+        }
+    }
+
+    printf(
+        "CGPA: %.2f\n",
+        calculateGPA(
+            results,
+            n_results
         )
-    };
-
-    CourseResult results[3] = {
-        createCompletedCourseResult(
-            &courses[0],
-            240
-        ),
-        createCompletedCourseResult(
-            &courses[1],
-            105
-        ),
-        createIncompleteCourseResult(
-            &courses[2]
-        )
-    };
-
-    double cgpa =
-        calculateGPA(results, 3);
-
-    return cgpa > 3.83 &&
-           cgpa < 3.84;
+    );
 }
 
-int testGradePoint()
+void showRequiredGPACalculator()
 {
-    Course course = createCourse(
-        "CSE 4107",
-        "Structured Programming I",
-        3.0,
-        1
+    double current_cgpa;
+    double completed_credits;
+    double target_cgpa;
+    double remaining_credits;
+
+    printf(
+        "\n========== REQUIRED GPA CALCULATOR ==========\n"
     );
 
-    CourseResult result =
-        createCompletedCourseResult(
-            &course,
-            240
+    printf("Current CGPA: ");
+    scanf("%lf", &current_cgpa);
+
+    printf("Completed Credits: ");
+    scanf("%lf", &completed_credits);
+
+    printf("Target CGPA: ");
+    scanf("%lf", &target_cgpa);
+
+    printf("Remaining Credits: ");
+    scanf("%lf", &remaining_credits);
+
+    if (remaining_credits <= 0.0)
+    {
+        printf(
+            "Remaining credits must be greater than zero.\n"
         );
 
-    return getGradePoint(result) == 4.00;
-}
+        return;
+    }
 
-int testLetterGrade()
-{
-    Course course = createCourse(
-        "CSE 4108",
-        "Structured Programming I Lab",
-        1.5,
-        1
-    );
-
-    CourseResult result =
-        createCompletedCourseResult(
-            &course,
-            105
-        );
-
-    char *grade =
-        getLetterGrade(result);
-
-    return grade[0] == 'A' &&
-           grade[1] == '-';
-}
-
-int testIncompleteGradePoint()
-{
-    Course course = createCourse(
-        "CSE 4203",
-        "Discrete Mathematics",
-        3.0,
-        2
-    );
-
-    CourseResult result =
-        createIncompleteCourseResult(
-            &course
-        );
-
-    return getGradePoint(result) == 0.0;
-}
-
-int testRequiredGPA()
-{
     double required_gpa =
         calculateRequiredGPA(
-            3.50,
-            90.0,
-            3.60,
-            30.0
+            current_cgpa,
+            completed_credits,
+            target_cgpa,
+            remaining_credits
         );
 
-    return required_gpa > 3.89 &&
-           required_gpa < 3.91;
+    printf(
+        "Required GPA: %.2f\n",
+        required_gpa
+    );
+
+    if (required_gpa > 4.00)
+    {
+        printf(
+            "The target CGPA is not achievable "
+            "with the given remaining credits.\n"
+        );
+    }
+    else if (required_gpa < 0.00)
+    {
+        printf(
+            "You have already exceeded the target CGPA.\n"
+        );
+    }
 }
 
-int testExpectedCGPA()
+void showExpectedCGPACalculator()
 {
-    double expected_cgpa =
-        calculateExpectedCGPA(
-            3.50,
-            90.0,
-            4.00,
-            30.0
+    double current_cgpa;
+    double completed_credits;
+    double expected_future_gpa;
+    double future_credits;
+
+    printf(
+        "\n========== EXPECTED CGPA CALCULATOR ==========\n"
+    );
+
+    printf("Current CGPA: ");
+    scanf("%lf", &current_cgpa);
+
+    printf("Completed Credits: ");
+    scanf("%lf", &completed_credits);
+
+    printf("Expected Future GPA: ");
+    scanf("%lf", &expected_future_gpa);
+
+    printf("Future Credits: ");
+    scanf("%lf", &future_credits);
+
+    if (completed_credits < 0.0 ||
+        future_credits < 0.0)
+    {
+        printf("Credits cannot be negative.\n");
+        return;
+    }
+
+    if (completed_credits + future_credits <= 0.0)
+    {
+        printf(
+            "Total credits must be greater than zero.\n"
         );
 
-    return expected_cgpa > 3.62 &&
-           expected_cgpa < 3.63;
+        return;
+    }
+
+    if (current_cgpa < 0.0 ||
+        current_cgpa > 4.0 ||
+        expected_future_gpa < 0.0 ||
+        expected_future_gpa > 4.0)
+    {
+        printf("GPA must be between 0.00 and 4.00.\n");
+        return;
+    }
+
+    double expected_cgpa =
+        calculateExpectedCGPA(
+            current_cgpa,
+            completed_credits,
+            expected_future_gpa,
+            future_credits
+        );
+
+    printf(
+        "Expected CGPA: %.2f\n",
+        expected_cgpa
+    );
 }
 
 int main()
 {
-    printf("GPA module tests\n");
+    Course courses[MAX_ITEMS];
+    CourseResult results[MAX_ITEMS];
 
-    int passed = 0;
-    int total = 0;
+    int n_courses = 0;
+    int n_results = 0;
+    int choice = 0;
 
-    total++;
-    if (testCGPA())
+    while (choice != 11)
     {
-        passed++;
+        showMenu();
+
+        if (scanf("%d", &choice) != 1)
+        {
+            printf("Invalid input.\n");
+            return 1;
+        }
+
+        if (choice == 1)
+        {
+            addCourse(
+                courses,
+                &n_courses
+            );
+        }
+        else if (choice == 2)
+        {
+            editCourse(
+                courses,
+                n_courses
+            );
+        }
+        else if (choice == 3)
+        {
+            deleteCourse(
+                courses,
+                &n_courses,
+                results,
+                &n_results
+            );
+        }
+        else if (choice == 4)
+        {
+            viewCourses(
+                courses,
+                n_courses
+            );
+        }
+        else if (choice == 5)
+        {
+            addCourseResult(
+                courses,
+                n_courses,
+                results,
+                &n_results
+            );
+        }
+        else if (choice == 6)
+        {
+            editCourseResult(
+                results,
+                n_results
+            );
+        }
+        else if (choice == 7)
+        {
+            deleteCourseResult(
+                results,
+                &n_results
+            );
+        }
+        else if (choice == 8)
+        {
+            viewMarksheet(
+                results,
+                n_results
+            );
+        }
+        else if (choice == 9)
+        {
+            showRequiredGPACalculator();
+        }
+        else if (choice == 10)
+        {
+            showExpectedCGPACalculator();
+        }
+        else if (choice == 11)
+        {
+            printf("Program closed.\n");
+        }
+        else
+        {
+            printf("Invalid choice.\n");
+        }
     }
 
-    total++;
-    if (testGradePoint())
-    {
-        passed++;
-    }
-
-    total++;
-    if (testLetterGrade())
-    {
-        passed++;
-    }
-
-    total++;
-    if (testIncompleteGradePoint())
-    {
-        passed++;
-    }
-
-    total++;
-    if (testRequiredGPA())
-    {
-        passed++;
-    }
-
-    total++;
-    if (testExpectedCGPA())
-    {
-        passed++;
-    }
-
-    printf(
-        "Passed %d/%d tests\n",
-        passed,
-        total
-    );
-
-    if (passed == total)
-    {
-        return 0;
-    }
-
-    return 1;
+    return 0;
 }
