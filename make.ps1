@@ -1,1 +1,8 @@
-gcc main.c -o calculator.exe
+gcc -I modules main.c modules/course.c modules/courseResult.c modules/gpa.c -o calculator.exe
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Build failed."
+    exit 1
+}
+
+Write-Host "Build successful."
