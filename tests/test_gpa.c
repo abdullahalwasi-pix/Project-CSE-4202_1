@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "course.h"
 #include "courseResult.h"
 #include "gpa.h"
@@ -27,14 +28,24 @@ int testCGPA()
     };
 
     CourseResult results[3] = {
-        createCompletedCourseResult(&courses[0], 240),
-        createCompletedCourseResult(&courses[1], 105),
-        createIncompleteCourseResult(&courses[2])
+        createCompletedCourseResult(
+            &courses[0],
+            240
+        ),
+        createCompletedCourseResult(
+            &courses[1],
+            105
+        ),
+        createIncompleteCourseResult(
+            &courses[2]
+        )
     };
 
-    double cgpa = calculateGPA(results, 3);
+    double cgpa =
+        calculateGPA(results, 3);
 
-    return cgpa > 3.83 && cgpa < 3.84;
+    return cgpa > 3.83 &&
+           cgpa < 3.84;
 }
 
 int testGradePoint()
@@ -47,7 +58,10 @@ int testGradePoint()
     );
 
     CourseResult result =
-        createCompletedCourseResult(&course, 240);
+        createCompletedCourseResult(
+            &course,
+            240
+        );
 
     return getGradePoint(result) == 4.00;
 }
@@ -62,11 +76,16 @@ int testLetterGrade()
     );
 
     CourseResult result =
-        createCompletedCourseResult(&course, 105);
+        createCompletedCourseResult(
+            &course,
+            105
+        );
 
-    char *grade = getLetterGrade(result);
+    char *grade =
+        getLetterGrade(result);
 
-    return grade[0] == 'A' && grade[1] == '-';
+    return grade[0] == 'A' &&
+           grade[1] == '-';
 }
 
 int testIncompleteGradePoint()
@@ -79,9 +98,25 @@ int testIncompleteGradePoint()
     );
 
     CourseResult result =
-        createIncompleteCourseResult(&course);
+        createIncompleteCourseResult(
+            &course
+        );
 
     return getGradePoint(result) == 0.0;
+}
+
+int testRequiredGPA()
+{
+    double required_gpa =
+        calculateRequiredGPA(
+            3.50,
+            90.0,
+            3.60,
+            30.0
+        );
+
+    return required_gpa > 3.89 &&
+           required_gpa < 3.91;
 }
 
 int main()
@@ -92,21 +127,45 @@ int main()
     int total = 0;
 
     total++;
-    if (testCGPA()) passed++;
+    if (testCGPA())
+    {
+        passed++;
+    }
 
     total++;
-    if (testGradePoint()) passed++;
+    if (testGradePoint())
+    {
+        passed++;
+    }
 
     total++;
-    if (testLetterGrade()) passed++;
+    if (testLetterGrade())
+    {
+        passed++;
+    }
 
     total++;
-    if (testIncompleteGradePoint()) passed++;
+    if (testIncompleteGradePoint())
+    {
+        passed++;
+    }
 
-    printf("Passed %d/%d tests\n", passed, total);
+    total++;
+    if (testRequiredGPA())
+    {
+        passed++;
+    }
+
+    printf(
+        "Passed %d/%d tests\n",
+        passed,
+        total
+    );
 
     if (passed == total)
+    {
         return 0;
+    }
 
     return 1;
 }
