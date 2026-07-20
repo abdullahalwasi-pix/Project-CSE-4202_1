@@ -1,7 +1,8 @@
 #include "gpa.h"
 
 const double gradeBoundaries[] = {
-    80, 75, 70, 65, 60, 55, 50, 45, 40
+    80, 75, 70, 65, 60,
+    55, 50, 45, 40
 };
 
 const double gradePoints[] = {
@@ -16,14 +17,16 @@ const char *gradeLetters[] = {
 
 double getPercentage(CourseResult result)
 {
-    double full_marks = result.course->credit * 100.0;
+    double full_marks =
+        result.course->credit * 100.0;
 
     if (full_marks <= 0.0)
     {
         return 0.0;
     }
 
-    return (result.marks / full_marks) * 100.0;
+    return
+        (result.marks / full_marks) * 100.0;
 }
 
 double getGradePoint(CourseResult result)
@@ -33,7 +36,8 @@ double getGradePoint(CourseResult result)
         return 0.0;
     }
 
-    double percentage = getPercentage(result);
+    double percentage =
+        getPercentage(result);
 
     for (int i = 0; i < 9; i++)
     {
@@ -53,7 +57,8 @@ char *getLetterGrade(CourseResult result)
         return "I";
     }
 
-    double percentage = getPercentage(result);
+    double percentage =
+        getPercentage(result);
 
     for (int i = 0; i < 9; i++)
     {
@@ -66,7 +71,10 @@ char *getLetterGrade(CourseResult result)
     return "F";
 }
 
-double calculateGPA(CourseResult results[], int n_results)
+double calculateGPA(
+    CourseResult results[],
+    int n_results
+)
 {
     double weighted_points = 0.0;
     double total_credits = 0.0;
@@ -82,7 +90,8 @@ double calculateGPA(CourseResult results[], int n_results)
             getGradePoint(results[i]) *
             results[i].course->credit;
 
-        total_credits += results[i].course->credit;
+        total_credits +=
+            results[i].course->credit;
     }
 
     if (total_credits == 0.0)
@@ -90,5 +99,58 @@ double calculateGPA(CourseResult results[], int n_results)
         return 0.0;
     }
 
-    return weighted_points / total_credits;
+    return
+        weighted_points / total_credits;
+}
+
+double calculateRequiredGPA(
+    double current_cgpa,
+    double completed_credits,
+    double target_cgpa,
+    double remaining_credits
+)
+{
+    double total_credits =
+        completed_credits + remaining_credits;
+
+    double target_points =
+        target_cgpa * total_credits;
+
+    double current_points =
+        current_cgpa * completed_credits;
+
+    if (remaining_credits <= 0.0)
+    {
+        return 0.0;
+    }
+
+    return
+        (target_points - current_points) /
+        remaining_credits;
+}
+
+double calculateExpectedCGPA(
+    double current_cgpa,
+    double completed_credits,
+    double expected_future_gpa,
+    double future_credits
+)
+{
+    double total_credits =
+        completed_credits + future_credits;
+
+    if (total_credits <= 0.0)
+    {
+        return 0.0;
+    }
+
+    double current_points =
+        current_cgpa * completed_credits;
+
+    double future_points =
+        expected_future_gpa * future_credits;
+
+    return
+        (current_points + future_points) /
+        total_credits;
 }
