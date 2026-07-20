@@ -1,10 +1,10 @@
 #!/bin/sh
 
-gcc -I modules main.c modules/*.c -o calculator.out
+gcc -I modules main.c modules/course.c modules/courseResult.c modules/gpa.c modules/student.c -o calculator.out
 
-if [ $? -ne 0 ]; then
+if [ $? -eq 0 ]; then
+    echo "Build successful."
+else
     echo "Build failed."
     exit 1
 fi
-
-echo "Build successful."
