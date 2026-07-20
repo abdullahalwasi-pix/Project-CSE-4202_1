@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "course.h"
 #include "courseResult.h"
 #include "student.h"
@@ -18,7 +20,7 @@ int main()
         1
     );
 
-    Student students[2] = {
+    Student students[3] = {
         createStudent(
             "240041001",
             "Alice"
@@ -26,6 +28,10 @@ int main()
         createStudent(
             "240041002",
             "Bob"
+        ),
+        createStudent(
+            "240041003",
+            "Carol"
         )
     };
 
@@ -61,9 +67,38 @@ int main()
         )
     );
 
-    for (int i = 0; i < 2; i++)
+    addCourseResultToStudent(
+        &students[2],
+        createCompletedCourseResult(
+            &cse4107,
+            273
+        )
+    );
+
+    addCourseResultToStudent(
+        &students[2],
+        createCompletedCourseResult(
+            &cse4108,
+            130.5
+        )
+    );
+
+    sortStudentsByCGPA(
+        students,
+        3
+    );
+
+    printf("========== STUDENT RANKING ==========\n");
+
+    for (int i = 0; i < 3; i++)
     {
+        printf("%d. ", i + 1);
         viewStudent(students[i]);
+
+        if (i < 2)
+        {
+            printf("\n");
+        }
     }
 
     return 0;

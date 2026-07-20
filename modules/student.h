@@ -28,4 +28,9 @@ void viewStudent(
     Student student
 );
 
+void sortStudentsByCGPA(
+    Student students[],
+    int n_students
+);
+
 #endif

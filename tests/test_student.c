@@ -60,15 +60,93 @@ int testAddCourseResultUpdatesCGPA()
             "Alice"
         );
 
-    addCourseResultToStudent(
-        &student,
+    CourseResult result =
         createCompletedCourseResult(
             &course,
             252
-        )
+        );
+
+    addCourseResultToStudent(
+        &student,
+        result
     );
 
     return student.cgpa == 4.00;
+}
+
+int testHighestCGPAStudentComesFirst()
+{
+    Student students[3] = {
+        createStudent(
+            "240041001",
+            "Alice"
+        ),
+        createStudent(
+            "240041002",
+            "Bob"
+        ),
+        createStudent(
+            "240041003",
+            "Carol"
+        )
+    };
+
+    students[0].cgpa = 3.25;
+    students[1].cgpa = 4.00;
+    students[2].cgpa = 3.75;
+
+    sortStudentsByCGPA(
+        students,
+        3
+    );
+
+    return strcmp(
+        students[0].id,
+        "240041002"
+    ) == 0;
+}
+
+int testRankingReordersStudents()
+{
+    Student students[3] = {
+        createStudent(
+            "240041001",
+            "Alice"
+        ),
+        createStudent(
+            "240041002",
+            "Bob"
+        ),
+        createStudent(
+            "240041003",
+            "Carol"
+        )
+    };
+
+    students[0].cgpa = 3.25;
+    students[1].cgpa = 4.00;
+    students[2].cgpa = 3.75;
+
+    sortStudentsByCGPA(
+        students,
+        3
+    );
+
+    return
+        strcmp(
+            students[0].id,
+            "240041002"
+        ) == 0
+        &&
+        strcmp(
+            students[1].id,
+            "240041003"
+        ) == 0
+        &&
+        strcmp(
+            students[2].id,
+            "240041001"
+        ) == 0;
 }
 
 int main()
@@ -98,6 +176,18 @@ int main()
 
     total++;
     if (testAddCourseResultUpdatesCGPA())
+    {
+        passed++;
+    }
+
+    total++;
+    if (testHighestCGPAStudentComesFirst())
+    {
+        passed++;
+    }
+
+    total++;
+    if (testRankingReordersStudents())
     {
         passed++;
     }
